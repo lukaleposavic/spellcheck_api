@@ -1,0 +1,49 @@
+Jezik C ima biblioteku koja komunicira sa Windowsim API-jem win32, koji ima funkciju za spellcheck(tj. klasu koja ima method check) - https://docs.microsoft.com/en-us/windows/win32/api/spellcheck/nf-spellcheck-ispellchecker-check
+
+Dart ima bilblioteku dart:ffi koja moze da poziva biblioteke drugih jezika - https://www.youtube.com/watch?v=2MMK7YoFgaA&ab_channel=Flutter
+
+Preko dart:ffi napravljen je paket za dart koji sadrzi najcesce koristene funkcije iz win32, tako da nije potreban C kompajler -  https://pub.dev/documentation/win32/latest/win32/win32-library.html 
+
+Blog Tim Sneatha koji je radio na ovom paketu sa nekim primjerima - https://timsneath.medium.com/windows-fun-with-dart-ffi-687c4619e78d
+
+Primjer spellcheck koda sa github profila Tim Sneatha - https://github.com/timsneath/win32/blob/main/example/spellcheck.dart
+
+Za spellcheck su nam korisne klase(i njihove metode) :
+
+    ISpellCheckerFactory - korsiti se da se napravi spellcheck objekat -- https://pub.dev/documentation/win32/latest/win32/ISpellCheckerFactory-class.html
+
+    ISpellChecker - sadrzi glavne metode provjere rijeci, predlaganja ispravki i dodavanja novih rijeci u rjecnik -- https://pub.dev/documentation/win32/latest/win32/ISpellChecker-class.html
+
+    CORRECTIVE_ACTION - govori koja akcija korekcije treba da se napravi(suggest, replace, remove...) --https://pub.dev/documentation/win32/latest/win32/CORRECTIVE_ACTION-class.html 
+
+    IEnumSpellingError - sadrzi metodu next koja trazi sledecu gresku -- https://pub.dev/documentation/win32/latest/win32/IEnumSpellingError-class.html
+
+
+U ovom folderu se cuvaju rijeci koje se dodaju ili iskljuce iz rjecnika -- %AppData%\Microsoft\Spelling\<language tag> 
+
+Language tag nam je takodje koristan da znamo jer pri kreiranju spellcheck objekta moramo proslijediti jezik koji podrzava win32 API, a tacan naziv jezika mozemo naci u tom folderu kada instaliramo jezik na Windowsu.
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Za user dictionary --- https://docs.microsoft.com/en-us/windows/win32/api/spellcheck/nn-spellcheck-iuserdictionariesregistrar
+
+Problem je sto IUserDictionary nije implementiran u dart paketu kao ostali interfejsi iz spellcheck.h biblioteke.
+Postoje 2 nacina da se rjecnik napravi:
+1.Da se napravi implementacija direktno u Dartu
+2.Da se napravi skirpta u C++ koja poziva postojeci interfejs IUserDictionary i da se iskoristi dart ffi da se pozove u flutteru kao na sledecim linkovima
+ --- https://levelup.gitconnected.com/port-an-existing-c-c-app-to-flutter-with-dart-ffi-8dc401a69fd7
+----https://www.youtube.com/watch?v=X8JD8hHkBMc
+
+Za oba rjesenje predstavlja problem sto je rijec o COM interfejsima koji su mnogo tezi za rad od obicnih
+
+Za prvo rjesenje: 
+Korisno je pogledati blog Tim Sneatha koji je napravio paket koji prevodi djelove win32 u Dart, pogotovo dio koji govori o COM interfejsima, tj. kod za IFileDialog --https://timsneath.medium.com/windows-fun-with-dart-ffi-687c4619e78d
+Takodje mogu se pogledati implementacije sa Dart win32 paketa --- https://pub.dev/packages/win32 
+
+
+Za drugo rjesenje:
+Za detaljanije koristenje COM interfejsanapisan je blog --- https://www.codeproject.com/Articles/633/Introduction-to-COM-What-It-Is-and-How-to-Use-It
+Takodje dio iz bloga napisanog za prvo rjesenje ima dio kako je IFileDialog implementiran
+Takodje je korisno otvoriti dokumentaciju o IUserDictionary u spellcheck.h biblioteci
